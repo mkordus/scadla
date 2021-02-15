@@ -9,19 +9,37 @@ class YakTest extends AnyFlatSpec {
     val borderWidth = 2.5
     val keyWidth = 14.0
     val keyWithBorderWidth = keyWidth + borderWidth * 2
-    val keyBorder = drawKeyBorder(
+    val key = drawKeyBorder(
       borderWidth = borderWidth
     )
+    val column = drawColumn(keyWithBorderWidth, key, _)
 
     Union(
-      keyBorder.moveY(keyWithBorderWidth * 0),
-      keyBorder.moveY(keyWithBorderWidth * 1)
+      key.moveX(keyWithBorderWidth * -1).moveY(-6.0 - keyWithBorderWidth),
+      column(5).moveX(keyWithBorderWidth * 0).moveY(0 - keyWithBorderWidth),
+      column(5).moveX(keyWithBorderWidth * 1).moveY(3.0 - keyWithBorderWidth),
+      column(4).moveX(keyWithBorderWidth * 2).moveY(5.0),
+      column(4).moveX(keyWithBorderWidth * 3).moveY(3.0),
+      column(4).moveX(keyWithBorderWidth * 4).moveY(-2.0),
+      column(3).moveX(keyWithBorderWidth * 5).moveY(-3.0)
     )
+  }
+
+  def drawColumn(
+      keyWithBorderWidth: Double,
+      keyBorder: Solid,
+      numberOfKeys: Int
+  ): Solid = {
+    val columnBorders = for {
+      i <- 0 to numberOfKeys - 1
+    } yield keyBorder.moveY(keyWithBorderWidth * i)
+
+    Union(columnBorders: _*)
   }
 
   def drawKeyBorder(
       borderWidth: Double = 2.5,
-      wallWidth: Double = 3.0,
+      wallWidth: Double = 4.0,
       keyWidth: Double = 14.0
   ) = {
     val borderCubeWidth = keyWidth + (borderWidth * 2)
@@ -65,7 +83,7 @@ class YakTest extends AnyFlatSpec {
   private def renderTest(obj: Solid): Unit = {
     val renderingOption = List("$fn=100;")
     val renderer = new backends.OpenSCAD(renderingOption)
-    renderer.view(obj)
-    // renderer.toSTL(obj, "v1.stl")
+    // renderer.view(obj)
+    renderer.toSTL(obj, "v1.stl")
   }
 }
