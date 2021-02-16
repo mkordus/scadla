@@ -14,8 +14,8 @@ case class Key(
     val x: Double = 0.0,
     val y: Double = 0.0,
     val keyWidth: Double = 14.0,
-    val borderWidth: Double = 4.0,
-    val wallWidth: Double = 4.0
+    val borderWidth: Double = 5.0,
+    val wallWidth: Double = 5.0
 ) extends Item {
 
   override def move(x: Double = 0.0, y: Double = 0.0) = copy(
