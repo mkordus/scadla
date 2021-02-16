@@ -6,9 +6,9 @@ import InlineOps._
 class YakTest extends AnyFlatSpec {
 
   it should "render" in renderTest {
-    val borderWidth = 2.5
+    val borderWidth = 4
     val keyWidth = 14.0
-    val keyWithBorderWidth = keyWidth + borderWidth * 2
+    val keyWithBorderWidth = 19.0
     val key = drawKeyBorder(
       borderWidth = borderWidth
     )
@@ -53,7 +53,7 @@ class YakTest extends AnyFlatSpec {
         .moveX(-borderCubeWidth / 2)
         .moveY(-borderCubeWidth / 2)
 
-    val gapDepth = 1.0
+    val gapDepth = 1.2
     val gapWidth = 5.0
 
     val gap =
@@ -83,7 +83,7 @@ class YakTest extends AnyFlatSpec {
   private def renderTest(obj: Solid): Unit = {
     val renderingOption = List("$fn=100;")
     val renderer = new backends.OpenSCAD(renderingOption)
-    // renderer.view(obj)
-    renderer.toSTL(obj, "v1.stl")
+    renderer.view(obj)
+    // renderer.toSTL(obj, "v1.stl")
   }
 }
