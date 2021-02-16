@@ -14,7 +14,7 @@ case class Key(
     val x: Double = 0.0,
     val y: Double = 0.0,
     val keyWidth: Double = 14.0,
-    val borderWidth: Double = 5.0,
+    val borderWidth: Double = 6.0,
     val wallWidth: Double = 5.0
 ) extends Item {
 
@@ -26,23 +26,15 @@ case class Key(
   override def renderUnion: Solid = {
     val borderCubeWidth = keyWidth + (borderWidth * 2)
 
-    val borderPart =
-      Cube(
-        width = borderCubeWidth,
-        depth = borderWidth,
-        height = wallWidth
-      )
-        .moveX(-borderCubeWidth / 2)
-        .moveY(-borderCubeWidth / 2)
-
-    val borders = Union(
-      borderPart.rotateZ(0),
-      borderPart.rotateZ(90),
-      borderPart.rotateZ(180),
-      borderPart.rotateZ(270)
+    val plate = Cube(
+      width = borderCubeWidth,
+      depth = borderCubeWidth,
+      height = wallWidth
     )
+      .moveX(-borderCubeWidth / 2)
+      .moveY(-borderCubeWidth / 2)
 
-    borders.move(x, y, 0)
+    plate.move(x, y, 0)
   }
 
   override def renderDiff: Solid = {
@@ -58,12 +50,22 @@ case class Key(
         .moveX(-gapWidth / 2)
         .moveY((-keyWidth - gapDepth) / 2)
 
-    val gaps = Union(
+    val hole =
+      Cube(
+        width = keyWidth,
+        depth = keyWidth,
+        height = wallWidth * 2
+      )
+        .moveX(-keyWidth / 2)
+        .moveY(-keyWidth / 2)
+
+    val all = Union(
+      hole,
       gap.rotateZ(0),
       gap.rotateZ(180)
     )
 
-    gaps.move(x, y, 0)
+    all.move(x, y, 0)
   }
 }
 
