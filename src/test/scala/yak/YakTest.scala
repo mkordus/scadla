@@ -5,36 +5,95 @@ import InlineOps._
 
 class YakTest extends AnyFlatSpec {
 
-  it should "render" in renderTest {
-    val borderWidth = 4
-    val keyWidth = 14.0
-    val keyWithBorderWidth = 19.0
-    val key = drawKeyBorder(
-      borderWidth = borderWidth
-    )
-    val column = drawColumn(keyWithBorderWidth, key, _)
+  val keyBorderWidth: Double = 4.0
 
-    Union(
-      key.moveX(keyWithBorderWidth * -1).moveY(-6.0 - keyWithBorderWidth),
-      column(5).moveX(keyWithBorderWidth * 0).moveY(0 - keyWithBorderWidth),
-      column(5).moveX(keyWithBorderWidth * 1).moveY(3.0 - keyWithBorderWidth),
-      column(4).moveX(keyWithBorderWidth * 2).moveY(5.0),
-      column(4).moveX(keyWithBorderWidth * 3).moveY(3.0),
-      column(4).moveX(keyWithBorderWidth * 4).moveY(-2.0),
-      column(3).moveX(keyWithBorderWidth * 5).moveY(-3.0)
-    )
+  sealed trait Item {
+    def move(x: Double = 0.0, y: Double = 0.0): Item
+    def renderUnion: Solid
   }
 
-  def drawColumn(
-      keyWithBorderWidth: Double,
-      keyBorder: Solid,
-      numberOfKeys: Int
-  ): Solid = {
-    val columnBorders = for {
-      i <- 0 to numberOfKeys - 1
-    } yield keyBorder.moveY(keyWithBorderWidth * i)
+  case class Key(
+      val x: Double = 0.0,
+      val y: Double = 0.0,
+      val keyWidth: Double = 14.0,
+      val borderWidth: Double = 4.0,
+      val wallWidth: Double = 4.0
+  ) extends Item {
 
-    Union(columnBorders: _*)
+    override def move(x: Double = 0.0, y: Double = 0.0) = copy(
+      x = this.x + x,
+      y = this.y + y
+    )
+
+    override def renderUnion: Solid =
+      drawKeyBorder(
+        borderWidth,
+        wallWidth,
+        keyWidth
+      ).move(x, y, 0)
+  }
+
+  object Key {
+    def move(x: Double = 0.0, y: Double = 0.0): Key =
+      Key(x = x, y = y)
+  }
+
+  case class Column(
+      val keys: List[Key]
+  ) extends Item {
+    def move(x: Double, y: Double) = copy(
+      keys = keys.map(_.move(x, y))
+    )
+
+    override def renderUnion: Solid = {
+      val renderedkeys = keys.map(_.renderUnion)
+      Union(renderedkeys: _*)
+    }
+  }
+
+  case class Layout(
+      val items: Item*
+  ) {
+    def render: Solid = {
+      val renderedItems = items.map(_.renderUnion)
+      Union(renderedItems: _*)
+    }
+  }
+
+  object Column {
+    def numberOfKeys(numberOfKeys: Int, keysSpacing: Double = 19.0): Column =
+      Column(
+        (0 to numberOfKeys - 1).map(i => Key(y = keysSpacing * i)).toList
+      )
+  }
+
+  it should "render" in renderTest {
+    val spacing = 19.0
+
+    val layout = Layout(
+      Key
+        .move(x = spacing * -1, y = -6.0 - spacing),
+      Column
+        .numberOfKeys(5)
+        .move(x = spacing * 0, y = -spacing),
+      Column
+        .numberOfKeys(5)
+        .move(x = spacing * 1, y = 3.0 - spacing),
+      Column
+        .numberOfKeys(4)
+        .move(x = spacing * 2, y = 5.0),
+      Column
+        .numberOfKeys(4)
+        .move(x = spacing * 3, y = 3.0),
+      Column
+        .numberOfKeys(4)
+        .move(x = spacing * 4, y = -2.0),
+      Column
+        .numberOfKeys(3)
+        .move(x = spacing * 5, y = -4.0)
+    )
+
+    layout.render
   }
 
   def drawKeyBorder(
