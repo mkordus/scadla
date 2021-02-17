@@ -13,18 +13,22 @@ class YakTest extends AnyFlatSpec {
     val layout = Layout(
       Key
         .move(x = spacing * -1, y = -7.0 - spacing),
-      Column
-        .numberOfKeys(5)
-        .move(x = spacing * 0, y = -spacing),
-      Column
-        .numberOfKeys(5)
+      Key
+        .move(x = spacing * 0, y = 0.0 - spacing),
+      Key
         .move(x = spacing * 1, y = 3.0 - spacing),
       Column
-        .numberOfKeys(5)
-        .move(x = spacing * 2, y = 5.0 - spacing),
+        .numberOfKeys(4)
+        .move(x = spacing * 0, y = 0),
       Column
-        .numberOfKeys(5)
-        .move(x = spacing * 3, y = 3.0 - spacing),
+        .numberOfKeys(4)
+        .move(x = spacing * 1, y = 3.0),
+      Column
+        .numberOfKeys(4)
+        .move(x = spacing * 2, y = 5.0),
+      Column
+        .numberOfKeys(4)
+        .move(x = spacing * 3, y = 3.0),
       Column
         .numberOfKeys(4)
         .move(x = spacing * 4, y = -4.0),
