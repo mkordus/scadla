@@ -8,60 +8,83 @@ import InlineOps._
 class PocketBookHolderTest extends AnyFlatSpec {
 
   it should "render" in renderTest {
-    val readerWidth = 7.4
-    val holderWallWidth = 3.0
-    val holderWidth = 25.0
-    val holderHeight = 9.0
-    val handleHeight = 90.0
+    val wallThicness = 2.2
+
+    val readerY = 8.0
+    val readerX = 137.0
+    val readerZ = 195.0
+
+    val holderZ = 27.0
+    val holderSideMargin = 15.0
+    val holderTopMargin = 12.0
+    val holderExtension = 40.0
+
+    val reader = Cube(
+      width = readerX,
+      depth = readerY,
+      height = readerZ
+    )
+      .moveX(-readerX / 2)
+      .moveY(-readerY / 2)
+      .moveZ(wallThicness)
+
+    val baseX = readerX
+    val baseY = readerY + wallThicness * 2
+    val baseZ = holderZ + wallThicness
 
     val base = Cube(
-      width = holderWidth * 3,
-      depth = readerWidth,
-      height = holderWallWidth
+      width = baseX,
+      depth = baseY,
+      height = baseZ + holderExtension
     )
-      .moveX(-holderWidth)
+      .moveX(-baseX / 2)
+      .moveY(-baseY / 2)
+      .moveZ(-holderExtension)
 
-    val backWall = Cube(
-      width = holderWidth * 3,
-      depth = holderWallWidth,
-      height = holderHeight * 2 + holderWallWidth
+    val baseCylinderRadius = baseY / 2
+    val baseCylinder = Cylinder(
+      radius = baseCylinderRadius,
+      height = baseZ + holderExtension
     )
-      .moveY(-holderWallWidth)
-      .moveX(-holderWidth)
+      .moveX(baseX / 2)
+      .moveZ(-holderExtension)
 
-    val handleRadius = 5.0
+    val insideBaseCylinder =
+      Cylinder(
+        radius = baseCylinderRadius,
+        height = holderExtension + wallThicness
+      )
+        .moveX(baseX / 2 - holderSideMargin)
+        .moveZ(-holderExtension)
 
-    val newHandle = Cylinder(
-      radius = handleRadius,
-      height = handleHeight
-    )
-      .moveX(holderWidth / 2)
-      .moveY(handleRadius / 2)
-      .moveZ(-handleHeight)
-
-    val frontWall = Cube(
-      width = holderWidth,
-      depth = holderWallWidth,
-      height = holderHeight + holderWallWidth
-    )
-      .moveY(readerWidth)
-
-    val frontWallLeft = frontWall.moveX(-holderWidth)
-    val frontWallRight = frontWall.moveX(holderWidth)
+    val windowX = baseX - holderSideMargin * 2
+    val windowY = baseY
+    val windowZ = baseZ - holderTopMargin + holderExtension
+    val window = Cube(windowX, windowY, windowZ)
+      .moveX(-windowX / 2)
+      .moveY(-windowY / 2)
+      .moveZ(-holderExtension)
 
     Union(
-      base,
-      backWall,
-      newHandle,
-      frontWallLeft,
-      frontWallRight
-    ).rotateY(180)
+      Difference(
+        Union(
+          base,
+          baseCylinder,
+          baseCylinder.rotateZ(180)
+        ),
+        reader,
+        window
+      ),
+      insideBaseCylinder,
+      insideBaseCylinder.rotateZ(180)
+    )
+      .rotateY(180)
   }
 
   private def renderTest(obj: Solid): Unit = {
     val renderingOption = List("$fn=100;")
     val renderer = new backends.OpenSCAD(renderingOption)
-    renderer.view(obj)
-    // renderer.toSTL(obj, "holder.stl")
+    // renderer.view(obj)
+    renderer.toSTL(obj, "holder.stl")
   }
 }
