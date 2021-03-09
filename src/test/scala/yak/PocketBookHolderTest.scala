@@ -11,13 +11,16 @@ class PocketBookHolderTest extends AnyFlatSpec {
     val wallThicness = 2.2
 
     val readerY = 8.0
-    val readerX = 137.0
+    val readerX = 137.2
     val readerZ = 195.0
+    val readerZScreen = 27.0
+    val readerXScreen = 121.0
 
-    val holderZ = 27.0
+    val holderZ = 37.0
     val holderSideMargin = 15.0
-    val holderTopMargin = 12.0
-    val holderExtension = 40.0
+    val holderTopMargin = 8.0
+
+    val handleZ = 80.0
 
     val reader = Cube(
       width = readerX,
@@ -35,35 +38,52 @@ class PocketBookHolderTest extends AnyFlatSpec {
     val base = Cube(
       width = baseX,
       depth = baseY,
-      height = baseZ + holderExtension
+      height = baseZ
     )
       .moveX(-baseX / 2)
       .moveY(-baseY / 2)
-      .moveZ(-holderExtension)
 
     val baseCylinderRadius = baseY / 2
     val baseCylinder = Cylinder(
       radius = baseCylinderRadius,
-      height = baseZ + holderExtension
+      height = baseZ
     )
       .moveX(baseX / 2)
-      .moveZ(-holderExtension)
 
-    val insideBaseCylinder =
-      Cylinder(
-        radius = baseCylinderRadius,
-        height = holderExtension + wallThicness
+    val buttonsSpaceX = baseX - holderSideMargin * 2
+    val buttonsSpaceY = baseY
+    val buttonsSpaceZ = readerZScreen - holderTopMargin
+    val buttonsSpace = Cube(buttonsSpaceX, buttonsSpaceY, buttonsSpaceZ)
+      .moveX(-buttonsSpaceX / 2)
+      .moveY(-buttonsSpaceY / 2 + wallThicness)
+
+    val screenSpace = Cube(readerXScreen, baseY, holderZ - readerZScreen)
+      .moveX(-readerXScreen / 2)
+      .moveY(-baseY / 2 + wallThicness)
+      .moveZ(readerZScreen + wallThicness)
+
+    val handle = Hull(
+      Union(
+        Cylinder(
+          radius = baseCylinderRadius,
+          height = handleZ
+        )
+          .moveX(baseX / 2),
+        Sphere(
+          radius = baseCylinderRadius
+        )
+          .moveX(baseX / 2),
+        Cylinder(
+          radius = baseCylinderRadius,
+          height = handleZ
+        )
+          .moveX(baseX / 2 - holderSideMargin),
+        Sphere(
+          radius = baseCylinderRadius
+        )
+          .moveX(baseX / 2 - holderSideMargin)
       )
-        .moveX(baseX / 2 - holderSideMargin)
-        .moveZ(-holderExtension)
-
-    val windowX = baseX - holderSideMargin * 2
-    val windowY = baseY
-    val windowZ = baseZ - holderTopMargin + holderExtension
-    val window = Cube(windowX, windowY, windowZ)
-      .moveX(-windowX / 2)
-      .moveY(-windowY / 2)
-      .moveZ(-holderExtension)
+    ).moveZ(-handleZ + wallThicness)
 
     Union(
       Difference(
@@ -73,10 +93,11 @@ class PocketBookHolderTest extends AnyFlatSpec {
           baseCylinder.rotateZ(180)
         ),
         reader,
-        window
+        buttonsSpace,
+        screenSpace
       ),
-      insideBaseCylinder,
-      insideBaseCylinder.rotateZ(180)
+      handle,
+      handle.rotateZ(180)
     )
       .rotateY(180)
   }
@@ -84,7 +105,7 @@ class PocketBookHolderTest extends AnyFlatSpec {
   private def renderTest(obj: Solid): Unit = {
     val renderingOption = List("$fn=100;")
     val renderer = new backends.OpenSCAD(renderingOption)
-    // renderer.view(obj)
-    renderer.toSTL(obj, "holder.stl")
+    renderer.view(obj)
+    // renderer.toSTL(obj, "holder.stl")
   }
 }
