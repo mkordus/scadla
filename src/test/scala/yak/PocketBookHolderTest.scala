@@ -52,7 +52,7 @@ class PocketBookHolderTest extends AnyFlatSpec {
 
     val buttonsSpaceX = baseX - holderSideMargin * 2
     val buttonsSpaceY = baseY
-    val buttonsSpaceZ = readerZScreen - holderTopMargin
+    val buttonsSpaceZ = readerZScreen - holderTopMargin + wallThicness
     val buttonsSpace = Cube(buttonsSpaceX, buttonsSpaceY, buttonsSpaceZ)
       .moveX(-buttonsSpaceX / 2)
       .moveY(-buttonsSpaceY / 2 + wallThicness)
