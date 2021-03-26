@@ -110,9 +110,18 @@ class PocketBookHolderTest extends AnyFlatSpec {
       )
     )
 
-    val pinHandle = Union(
+    val pinHandle = Difference(
       handle,
-      pin
+      Union(
+        Cube(9.2, pinY + 2, 3.2)
+          .moveX(-3.1)
+          .moveZ(2.9),
+        Cube(3.2, pinY + 2, 3.2)
+          .moveX(-0.1)
+      )
+        .moveX(9.0)
+        .moveY(-baseY / 2)
+        .rotateY(180)
     )
 
     val all = Union(
@@ -147,7 +156,7 @@ class PocketBookHolderTest extends AnyFlatSpec {
   private def renderTest(obj: Solid): Unit = {
     val renderingOption = List("$fn=100;")
     val renderer = new backends.OpenSCAD(renderingOption)
-    // renderer.view(obj)
-    renderer.toSTL(obj, "holder.stl")
+    renderer.view(obj)
+    // renderer.toSTL(obj, "handle.stl")
   }
 }
