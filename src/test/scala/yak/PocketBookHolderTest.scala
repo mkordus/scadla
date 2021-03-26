@@ -43,17 +43,12 @@ class PocketBookHolderTest extends AnyFlatSpec {
       .moveX(-baseX / 2)
       .moveY(-baseY / 2)
 
-    val baseCylinderRadius = baseY / 2
-
     val screenSpace = Cube(readerXScreen, baseY, readerZ)
       .moveX(-readerXScreen / 2)
       .moveY(-baseY / 2 + wallThicness)
-      .moveZ(wallThicness * 3)
+      .moveZ(wallThicness * 2)
 
     val bottomSpaceX = 30.0
-    val bottomSpace = Cube(bottomSpaceX, baseY, wallThicness)
-      .moveX(-bottomSpaceX / 2)
-      .moveY(-baseY / 2)
 
     val weightReductionX = (baseX - bottomSpaceX) / 2
     val weightReductionZ = baseZ - 20.0
@@ -61,61 +56,47 @@ class PocketBookHolderTest extends AnyFlatSpec {
       .moveX(bottomSpaceX / 2)
       .moveY(-baseY / 2)
 
-    val handle = Hull(
-      Union(
-        Cylinder(
-          radius = baseCylinderRadius,
-          height = handleZ
-        ),
-        Sphere(
-          radius = baseCylinderRadius
-        ),
-        Cylinder(
-          radius = baseCylinderRadius,
-          height = handleZ
-        )
-          .moveX(-holderSideMargin),
-        Sphere(
-          radius = baseCylinderRadius
-        )
-          .moveX(-holderSideMargin)
-      )
-    ).moveZ(-handleZ)
-
-    val pinY = baseY
-    // val pinY = 6.0
-
-    val pin = Union(
-      Cube(9.0, pinY, 3.0)
-        .moveX(-3.0)
-        .moveZ(3.0),
-      Cube(3.0, pinY, 3.0)
+    val handleRadius = 20 / 2
+    val handleMount = Hull(
+      Cube(bottomSpaceX, baseY, wallThicness)
+        .moveX(-bottomSpaceX / 2)
+        .moveY(-baseY / 2),
+      Cylinder(
+        radius = handleRadius,
+        height = wallThicness
+      ),
+      // Sphere(
+      //   radius = handleRadius
+      // ),
+      Cylinder(
+        radius = handleRadius,
+        height = wallThicness
+      ).moveY(handleRadius)
     )
 
-    val pinHolder = Difference(
-      Cube(15.0, pinY, 9.0)
-        .moveX(-6.0),
-      Union(
-        Cube(9.2, pinY, 3.2)
-          .moveX(-3.1)
-          .moveZ(2.9),
-        Cube(3.2, pinY, 3.2)
-          .moveX(-0.1)
-      )
-    )
-
-    val pinHandle = Difference(
-      handle,
-      Union(
-        Cube(9.2, pinY + 2, 3.2)
-          .moveX(-3.1)
-          .moveZ(2.9),
-        Cube(3.2, pinY + 2, 3.2)
-          .moveX(-0.1)
-      )
-        .moveX(9.0)
-        .moveY(-baseY / 2)
-        .rotateY(180)
+    val handle = Difference(
+      Hull(
+        Union(
+          Cylinder(
+            radius = handleRadius,
+            height = handleZ + 20
+          ),
+          Sphere(
+            radius = handleRadius
+          ),
+          Cylinder(
+            radius = handleRadius,
+            height = handleZ + 20
+          ).moveY(handleRadius),
+          Sphere(
+            radius = handleRadius
+          ).moveY(handleRadius)
+        )
+      ).moveZ(-handleZ)
+        .rotateX(15),
+      Cube(200, 200, 200)
+        .moveX(-100)
+        .moveY(-100)
     )
 
     val all = Union(
@@ -125,26 +106,19 @@ class PocketBookHolderTest extends AnyFlatSpec {
         screenSpace,
         weightReduction,
         weightReduction.rotateZ(180)
-      )
-      // handle.moveZ(wallThicness)
+      ),
+      handle,
+      handleMount
     )
       .rotateY(180)
 
-    // Union(
-    //   pinHolder,
-    //   pin.moveX(20)
-    // )
-    //   .rotateX(90)
-
-    // pinHandle
     all
-    // weightReduction
   }
 
   private def renderTest(obj: Solid): Unit = {
-    val renderingOption = List("$fn=100;")
+    val renderingOption = List("$fn=90;")
     val renderer = new backends.OpenSCAD(renderingOption)
     // renderer.view(obj)
-    renderer.toSTL(obj, "holder4.stl")
+    renderer.toSTL(obj, "holder5.stl")
   }
 }
